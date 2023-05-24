@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const { createCanvas } = require('canvas');
 const app = express();
@@ -7,10 +6,9 @@ const { NFTStorage } = require('nft.storage');
 const { Blob } = require("buffer");
 const cors = require('cors')
 const port = process.env.PORT || 3000;
+const { NFT_STORAGE_KEY } = require('./secret');
 app.use(cors());
 app.use(bodyParser.json());
-
-const NFT_STORAGE_KEY = process.env.NFT_STORAGE_KEY;
 
 const orange50 = '#FFFAF0';
 const orange100 = '#FEEBC8';
