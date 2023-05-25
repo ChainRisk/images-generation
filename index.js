@@ -142,13 +142,13 @@ app.post('/image', async (req, res) => {
     // Return the image
     const imageBuffer = canvas.toBuffer();
 
-    res.set('Content-Type', 'image/png');
-    res.send(imageBuffer);
+    // res.set('Content-Type', 'image/png');
+    // res.send(imageBuffer);
 
-    // const nftRes = await storeNFT(imageBuffer, 'Blended Credit Score', `Blended credit score of ${score} for ID ${id}`);
+    const nftRes = await storeNFT(imageBuffer, 'Blended Credit Score', `Blended credit score of ${score} for ID ${id}`);
 
-    // res.set('Content-Type', 'application/json');
-    // res.send(nftRes);
+    res.set('Content-Type', 'application/json');
+    res.send(nftRes);
 });
 
 app.get('/', (req, res) => {
