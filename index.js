@@ -40,7 +40,8 @@ async function storeNFT(imageBuffer, name, description) {
 
 app.post('/image', async (req, res) => {
     const score = req.body.score;
-    const id = req.body.id || 'ID not provided';
+    const creditRating = req.body.creditRating;
+    const address = req.body.address || 'Address not provided';
 
     // Validation
     if (score < 0 || score > 100 || isNaN(score)) {
@@ -49,16 +50,13 @@ app.post('/image', async (req, res) => {
     }
 
     // Creating a new canvas
-    const canvas = createCanvas(800, 1200);
+    const canvas = createCanvas(1200, 620);
     const ctx = canvas.getContext('2d');
 
     // Scale colors from red to green depending on the score
     const bgColor = score < 33 ? red50 : score < 66 ? orange50 : green50;
     const color = score < 33 ? red500 : score < 66 ? orange500 : green500;
     const lightColor = score < 33 ? red100 : score < 66 ? orange100 : green100;
-
-    ctx.fillStyle = bgColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     function randomDashes(ctx, count, minLength, maxLength, color) {
         for (let i = 0; i < count; i++) {
@@ -75,34 +73,82 @@ app.post('/image', async (req, res) => {
         }
     }
 
+    function getRandomBetween(min, max) {
+        if(max < min) {
+            throw new Error("Max must be greater than or equal to min.");
+        }
+        return Math.random() * (max - min) + min;
+    }
+
+    function drawBackground() {
+        ctx.fillStyle = bgColor; // change to your desired background color
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function drawPath(points) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 1; i < points.length; i++) {
+            let cp = points[i];
+            let np = i < points.length - 1 ? points[i + 1] : points[0];
+            ctx.quadraticCurveTo(cp.x, cp.y, (cp.x + np.x) / 2, (cp.y + np.y) / 2);
+        }
+
+        ctx.closePath();
+        ctx.fillStyle = lightColor; // blob color
+        ctx.fill();
+    }
+
+    function getCirclePoints(base, radius, segments) {
+        const positions = [];
+        const randomRange = radius * 0.4; // vary control points up to 40% of the radius
+
+        for (let i = 0; i < segments; i++) {
+            const angle = (i * Math.PI * 2) / segments;
+            const r = radius + getRandomBetween(-randomRange, randomRange);
+            positions.push({
+                x: base.x + r * Math.sin(angle),
+                y: base.y + r * Math.cos(angle)
+            });
+        }
+
+        return positions;
+    }
+
+    drawBackground();
+    drawPath(getCirclePoints({ x: 800, y: 1300 }, 1000, 20));
     randomDashes(ctx, 12, 1600, 1600, lightColor);
 
     // Draw the score onto the image
-    ctx.font = '340px Arial Black';
+    ctx.font = '200px Arial Black';
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(score, canvas.width / 2, canvas.height / 2 - 200);
+    ctx.fillText(creditRating, canvas.width / 2, canvas.height / 2 - 100);
 
     // Draw description under the score
     ctx.font = '34px Arial';
     ctx.fillStyle = color;
-    ctx.fillText(`blended credit score of ${score}`, canvas.width / 2, canvas.height / 2);
+    ctx.fillText(`Blended credit score of ${score}`, canvas.width / 2, canvas.height / 2 + 40);
 
     // Draw ID at the bottom of the image
     ctx.font = '34px Arial';
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`ID: ${id}`, canvas.width / 2, canvas.height - 60);
+    ctx.fillText(`${address}`, canvas.width / 2, canvas.height - 60);
 
     // Return the image
     const imageBuffer = canvas.toBuffer();
 
-    const nftRes = await storeNFT(imageBuffer, 'Blended Credit Score', `Blended credit score of ${score} for ID ${id}`);
+    res.set('Content-Type', 'image/png');
+    res.send(imageBuffer);
 
-    res.set('Content-Type', 'application/json');
-    res.send(nftRes);
+    // const nftRes = await storeNFT(imageBuffer, 'Blended Credit Score', `Blended credit score of ${score} for ID ${id}`);
+
+    // res.set('Content-Type', 'application/json');
+    // res.send(nftRes);
 });
 
 app.get('/', (req, res) => {
