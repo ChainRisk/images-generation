@@ -58,9 +58,9 @@ app.post('/image', async (req, res) => {
     const ctx = canvas.getContext('2d');
 
     // Scale colors from red to green depending on the score
-    const bgColor = score < 33 ? red50 : score < 66 ? orange50 : green50;
-    const color = score < 33 ? red500 : score < 66 ? orange500 : green500;
-    const lightColor = score < 33 ? red100 : score < 66 ? orange100 : green100;
+    const bgColor = score <= 35 ? red50 : score <= 65 ? orange50 : green50;
+    const color = score <= 35 ? red500 : score <= 65 ? orange500 : green500;
+    const lightColor = score <= 35 ? red100 : score <= 65 ? orange100 : green100;
 
     function randomDashes(ctx, count, minLength, maxLength, color) {
         for (let i = 0; i < count; i++) {
