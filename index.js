@@ -7,6 +7,8 @@ const { Blob } = require("buffer");
 const cors = require('cors')
 const port = process.env.PORT || 3000;
 const { NFT_STORAGE_KEY } = require('./secret');
+const {fromUnixTime, addMonths, getUnixTime} = require("date-fns");
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -43,6 +45,8 @@ async function storeNFT(imageBuffer, name, description, attributes) {
 }
 
 app.post('/image', async (req, res) => {
+    const mintDate = getUnixTime(new Date());
+    const expiryDate = getUnixTime(addMonths(new Date(), 3));
     const score = req.body.score;
     const creditRating = req.body.creditRating;
     const address = req.body.address || 'Address not provided';
@@ -136,12 +140,28 @@ app.post('/image', async (req, res) => {
     ctx.fillStyle = color;
     ctx.fillText(`Blended credit score of ${score}`, canvas.width / 2, canvas.height / 2 + 40);
 
+
+    // Draw Mint Date at the bottom of the image
+    ctx.font = '24px Figtree';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Mint date: ${fromUnixTime(mintDate).toDateString()}`, 120, canvas.height - 140);
+
+    // Draw Expiry Date at the bottom of the image
+    ctx.font = '24px Figtree';
+    ctx.fillStyle = color;
+    ctx.textAlign = 'start';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`Expiration date: ${fromUnixTime(expiryDate).toDateString()}`, 120, canvas.height - 110);
+
+
     // Draw ID at the bottom of the image
     ctx.font = '34px Figtree';
     ctx.fillStyle = color;
-    ctx.textAlign = 'center';
+    ctx.textAlign = 'start';
     ctx.textBaseline = 'middle';
-    ctx.fillText(`${address}`, canvas.width / 2, canvas.height - 60);
+    ctx.fillText(`${address}`, 120, canvas.height - 60);
 
     // Return the image
     const imageBuffer = canvas.toBuffer();
@@ -158,7 +178,17 @@ app.post('/image', async (req, res) => {
         {
             "trait_type": "creditRating",
             "value": creditRating
-        }
+        },
+        {
+            "display_type": "date",
+            "trait_type": "Mint date",
+            "value": mintDate
+        },
+        {
+            "display_type": "date",
+            "trait_type": "Expiration date",
+            "value": expiryDate
+        },
     ]);
 
     res.set('Content-Type', 'application/json');
