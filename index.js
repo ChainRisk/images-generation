@@ -1,5 +1,5 @@
 const express = require('express');
-const { createCanvas } = require('canvas');
+const { createCanvas, registerFont } = require('canvas');
 const app = express();
 const bodyParser = require('body-parser');
 const { NFTStorage } = require('nft.storage');
@@ -9,6 +9,9 @@ const port = process.env.PORT || 3000;
 const { NFT_STORAGE_KEY } = require('./secret');
 app.use(cors());
 app.use(bodyParser.json());
+
+registerFont('assets/Figtree/static/Figtree-Black.ttf', { family: 'Figtree Black' });
+registerFont('assets/Figtree/static/Figtree-Regular.ttf', { family: 'Figtree' });
 
 const orange50 = '#FFFAF0';
 const orange100 = '#FEEBC8';
@@ -22,7 +25,7 @@ const red50 = '#FFF5F5';
 const red100 = '#FED7D7';
 const red500 = '#E53E3E';
 
-async function storeNFT(imageBuffer, name, description) {
+async function storeNFT(imageBuffer, name, description, attributes) {
     // const image = await fileFromPath(imagePath)
 
     // create a new NFTStorage client using our API key
@@ -35,6 +38,7 @@ async function storeNFT(imageBuffer, name, description) {
         image: imageBlob,
         name,
         description,
+        attributes,
     })
 }
 
@@ -121,19 +125,19 @@ app.post('/image', async (req, res) => {
     randomDashes(ctx, 12, 1600, 1600, lightColor);
 
     // Draw the score onto the image
-    ctx.font = '200px Arial Black';
+    ctx.font = '200px Figtree Black';
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(creditRating, canvas.width / 2, canvas.height / 2 - 100);
 
     // Draw description under the score
-    ctx.font = '34px Arial';
+    ctx.font = '34px Figtree';
     ctx.fillStyle = color;
     ctx.fillText(`Blended credit score of ${score}`, canvas.width / 2, canvas.height / 2 + 40);
 
     // Draw ID at the bottom of the image
-    ctx.font = '34px Arial';
+    ctx.font = '34px Figtree';
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -145,7 +149,17 @@ app.post('/image', async (req, res) => {
     // res.set('Content-Type', 'image/png');
     // res.send(imageBuffer);
 
-    const nftRes = await storeNFT(imageBuffer, 'Blended Credit Score', `Blended credit score of ${score} for ID ${id}`);
+    const nftRes = await storeNFT(imageBuffer, 'RiskPass', `This is your RiskPass, a way to show your creditworthiness`, [
+        {
+            "display_type": "number",
+            "trait_type": "blendedScore",
+            "value": score
+        },
+        {
+            "trait_type": "creditRating",
+            "value": creditRating
+        }
+    ]);
 
     res.set('Content-Type', 'application/json');
     res.send(nftRes);
