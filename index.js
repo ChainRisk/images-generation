@@ -8,6 +8,7 @@ const cors = require('cors')
 const port = process.env.PORT || 3000;
 const { NFT_STORAGE_KEY } = require('./secret');
 const {fromUnixTime, addMonths, getUnixTime} = require("date-fns");
+const axios = require('axios');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -47,9 +48,17 @@ async function storeNFT(imageBuffer, name, description, attributes) {
 app.post('/image', async (req, res) => {
     const mintDate = getUnixTime(new Date());
     const expiryDate = getUnixTime(addMonths(new Date(), 3));
-    const score = req.body.score;
-    const creditRating = req.body.creditRating;
+    let score
+    let creditRating
     const address = req.body.address || 'Address not provided';
+
+    try {
+        const response = await axios.get('https://gva1kp8ip8.execute-api.eu-north-1.amazonaws.com/test/creditrating');
+        score = response.data.value;
+        creditRating = response.data.creditRating;
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 
     // Validation
     if (score < 0 || score > 100 || isNaN(score)) {
