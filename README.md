@@ -45,7 +45,7 @@ The endpoint responds with the stored NFT's data.
 
 ### Request/Response Process:
 
-1. A client sends a request to the application with an Ethereum address.
+1. A client sends a request to the application with a wallet address.
 2. The application fetches the credit score associated with that address.
 3. The credit score is used to create an image representation of the credit score using the canvas library. The image includes a dynamic color scaling system where the colors change depending on the score's value.
 4. The application mints an NFT representing the credit score using the nft.storage library. The NFT includes the image and metadata such as the blended score, credit rating, mint date, and expiration date.
