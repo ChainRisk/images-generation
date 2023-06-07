@@ -24,7 +24,24 @@ Install the dependencies: `npm install`
 
 Start the application: `npm start`
 
+## Endpoints
 The application has two main endpoints: `POST /image` and `GET /image`. Both of these endpoints create an image representation of a credit score and mint it as an NFT.
+
+### `POST /image`:
+
+This endpoint allows you to generate a new NFT with credit rating information. The **request body** should be a JSON object with the following key-value pairs:
+
+- **address (optional)**: A string representing an address. If not provided, 'Address not provided' is used.
+
+The endpoint responds with the stored NFT's data.
+
+### `GET /image`:
+
+This endpoint allows you to generate a new NFT with credit rating information based on the provided address **query parameter**.
+
+- **address (optional)**: A string representing an address. If not provided, 'Address not provided' is used.
+
+The endpoint responds with the stored NFT's data.
 
 ### Request/Response Process:
 
