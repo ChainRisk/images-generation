@@ -178,7 +178,7 @@ app.post('/image', async (req, res) => {
     // res.set('Content-Type', 'image/png');
     // res.send(imageBuffer);
 
-    const nftRes = await storeNFT(imageBuffer, 'ChainRisk', `This is your ChainRisk, a way to show your creditworthiness`, [
+    const nftRes = await storeNFT(imageBuffer, 'ChainRisk - Your on-chain Credit Rating thanks to Chainlink', `This is your ChainRisk ID, a way to demonstrate your off-chain creditworthiness`, [
         {
             "display_type": "number",
             "trait_type": "blendedScore",
